@@ -1,12 +1,11 @@
 pipeline {
   agent any
 
-  stages {
-    stage('Clone') {
-      steps {
-        git branch: 'main', credentialsId: 'github-pat-jenkins', url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git'
-      }
-    }
+  stage('Clone') {
+  steps {
+    git branch: 'main', url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git'
+  }
+}
 
     stage('Build') {
       steps {
