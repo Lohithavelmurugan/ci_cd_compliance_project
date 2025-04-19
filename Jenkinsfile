@@ -9,15 +9,16 @@ pipeline {
         stage('Clone') {
             steps {
                 script {
-                    // Verify Git installation and check current directory
-                    sh 'git --version'  // Verify Git is installed
-                    sh 'pwd'  // Check the current directory
-                    sh 'ls -l'  // List files in the directory
-                }
-                cleanWs()  // Clean the workspace before cloning the repository
-                sh 'git clone https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git'  // Manually clone the repository
-                dir('ci_cd_compliance_project') {  // Navigate into the cloned directory
-                    sh 'git checkout main'  // Ensure the correct branch is checked out
+                    // Clean the workspace before cloning
+                    cleanWs()
+                    // Explicitly clone the repository and check if it was successful
+                    echo "Cloning repository..."
+                    sh 'git clone https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git'
+                    // Navigate into the repository directory
+                    dir('ci_cd_compliance_project') {
+                        echo "Checked out to main branch"
+                        sh 'git checkout main'
+                    }
                 }
             }
         }
@@ -25,42 +26,51 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building Docker image..."
-                sh 'docker build -t $DOCKER_IMAGE .'
+                dir('ci_cd_compliance_project') {  // Ensure Docker build is run inside the cloned repo
+                    sh 'docker build -t $DOCKER_IMAGE .'
+                }
             }
         }
 
         stage('Unit Tests') {
             steps {
                 echo "Running unit tests..."
-                sh './run_tests.sh'  // Make sure this script exists and is executable
+                dir('ci_cd_compliance_project') {  // Ensure unit tests are run inside the cloned repo
+                    sh './run_tests.sh'
+                }
             }
         }
 
         stage('Security Scan') {
             steps {
                 echo "Performing security scan with Trivy..."
-                sh 'trivy image $DOCKER_IMAGE || true'  // Avoid build failure due to non-zero exit
+                dir('ci_cd_compliance_project') {  // Ensure security scan is run inside the cloned repo
+                    sh 'trivy image $DOCKER_IMAGE || true'
+                }
             }
         }
 
         stage('Secrets Check') {
             steps {
                 echo "Scanning for hardcoded secrets..."
-                sh 'gitleaks detect --source=. || true'
+                dir('ci_cd_compliance_project') {  // Ensure secrets check is run inside the cloned repo
+                    sh 'gitleaks detect --source=. || true'
+                }
             }
         }
 
         stage('Institutional Compliance') {
             steps {
                 echo "Running institutional compliance checks..."
-                sh './compliance_check.sh'  // Ensure this script exists and runs relevant checks
+                dir('ci_cd_compliance_project') {  // Ensure compliance check is run inside the cloned repo
+                    sh './compliance_check.sh'
+                }
             }
         }
 
         stage('Deploy') {
             steps {
                 echo "Deploying Docker image..."
-                // Example command – replace with your deployment logic
                 sh 'docker run -d --name compliance_app $DOCKER_IMAGE'
             }
         }
