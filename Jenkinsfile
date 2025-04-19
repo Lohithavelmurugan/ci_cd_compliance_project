@@ -5,12 +5,11 @@ pipeline {
         DOCKER_IMAGE = "compliance-app:${env.BUILD_ID}"
     }
 
-    stages {
-        stage('Clone') {
-            steps {
-                git credentialsId: 'github-pat-jenkins', url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git', branch: 'main'
-            }
-        }
+    stage('Clone') {
+    steps {
+        git url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git', branch: 'main'
+    }
+}
 
         stage('Build') {
             steps {
