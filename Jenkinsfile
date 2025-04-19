@@ -5,11 +5,22 @@ pipeline {
         DOCKER_IMAGE = "compliance-app:${env.BUILD_ID}"
     }
 
-    stage('Clone') {
-    steps {
-        git url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git', branch: 'main'
-    }
-}
+    stages {
+        stage('Clone') {
+            steps {
+                script {
+                    // Verify Git installation and check current directory
+                    sh 'git --version'  // Verify Git is installed
+                    sh 'pwd'  // Check the current directory
+                    sh 'ls -l'  // List files in the directory
+                }
+                cleanWs()  // Clean the workspace before cloning the repository
+                sh 'git clone https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git'  // Manually clone the repository
+                dir('ci_cd_compliance_project') {  // Navigate into the cloned directory
+                    sh 'git checkout main'  // Ensure the correct branch is checked out
+                }
+            }
+        }
 
         stage('Build') {
             steps {
