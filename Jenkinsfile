@@ -9,9 +9,8 @@ pipeline {
         stage('Clone') {
             steps {
                 script {
-                    // Use checkout scm to ensure the repo is checked out properly.
                     echo "Cloning repository..."
-                    checkout scm  // This uses the Jenkins job's SCM configuration.
+                    checkout scm  // This uses the repository configured in the Jenkins job configuration.
                 }
             }
         }
