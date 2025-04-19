@@ -1,47 +1,71 @@
 pipeline {
-  agent any
+    agent any
 
-  stage('Clone') {
-  steps {
-    git branch: 'main', url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git'
-  }
-}
-
-    stage('Build') {
-      steps {
-        sh 'docker build -t myapp .'
-      }
+    environment {
+        DOCKER_IMAGE = "compliance-app:${env.BUILD_ID}"
     }
 
-    stage('Unit Tests') {
-      steps {
-        sh 'pytest test_app.py'
-      }
+    stages {
+        stage('Clone') {
+            steps {
+                git credentialsId: 'github-pat-jenkins', url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git', branch: 'main'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Building Docker image..."
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                echo "Running unit tests..."
+                sh './run_tests.sh'  // Make sure this script exists and is executable
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                echo "Performing security scan with Trivy..."
+                sh 'trivy image $DOCKER_IMAGE || true'  // Avoid build failure due to non-zero exit
+            }
+        }
+
+        stage('Secrets Check') {
+            steps {
+                echo "Scanning for hardcoded secrets..."
+                sh 'gitleaks detect --source=. || true'
+            }
+        }
+
+        stage('Institutional Compliance') {
+            steps {
+                echo "Running institutional compliance checks..."
+                sh './compliance_check.sh'  // Ensure this script exists and runs relevant checks
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying Docker image..."
+                // Example command – replace with your deployment logic
+                sh 'docker run -d --name compliance_app $DOCKER_IMAGE'
+            }
+        }
     }
 
-    stage('Security Scan') {
-      steps {
-        sh 'trivy image myapp || true'
-      }
+    post {
+        always {
+            echo "Cleaning up Docker..."
+            sh 'docker system prune -f'
+        }
+        success {
+            echo "Pipeline completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check the logs for errors."
+        }
     }
-
-    stage('Secrets Check') {
-      steps {
-        sh 'gitleaks detect --source . --no-git -v || true'
-      }
-    }
-
-    stage('Institutional Compliance') {
-      steps {
-        sh 'chmod +x compliance_rules.sh'
-        sh './compliance_rules.sh'
-      }
-    }
-
-    stage('Deploy') {
-      steps {
-        echo "Ready to deploy! 🚀"
-      }
-    }
-  }
 }
