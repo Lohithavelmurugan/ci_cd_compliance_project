@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage('Clone') {
       steps {
-        git 'https://github.com/your-username/my-compliance-app.git'
+        git credentialsId: 'github-pat-jenkins', url: 'https://github.com/Lohithavelmurugan/ci_cd_compliance_project.git'
       }
     }
 
