@@ -2,9 +2,9 @@ name: CI/CD Compliance Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build-and-check:
@@ -38,14 +38,16 @@ jobs:
       with:
         image-ref: my-compliance-app
 
-    - name: Remove existing gitleaks binary
-      run: |
-        sudo rm -f /usr/local/bin/gitleaks
-
     - name: Install GitLeaks
       run: |
         curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+        # Verify the downloaded file type
+        file gitleaks
+        # Check if the file is executable and inspect file permissions
+        ls -l gitleaks
         chmod +x gitleaks
+        # Ensure the file is executable and correct
+        ./gitleaks --version
         sudo mv gitleaks /usr/local/bin/
 
     - name: Run GitLeaks Scan
