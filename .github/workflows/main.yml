@@ -1,0 +1,58 @@
+name: CI/CD Compliance Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Run Unit Tests
+      run: |
+        pytest test_app.py
+
+    - name: Build Docker Image
+      run: |
+        docker build -t my-compliance-app .
+
+    - name: Run Trivy Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: my-compliance-app
+
+    - name: Install GitLeaks
+      run: |
+        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+        chmod +x gitleaks
+        sudo mv gitleaks /usr/local/bin/
+
+    - name: Run GitLeaks Scan
+      run: |
+        gitleaks detect --source . --no-git -v
+
+    - name: Run Compliance Checks
+      run: |
+        chmod +x compliance_rules.sh
+        ./compliance_rules.sh
+
+    - name: ✅ Deployment Step
+      if: success()
+      run: echo "🎉 Deployment successful!"
