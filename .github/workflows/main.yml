@@ -42,18 +42,12 @@ jobs:
       run: |
         # Correct link for the Gitleaks binary (use the appropriate version and architecture)
         curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v7.6.0/gitleaks-linux-amd64 -o gitleaks
-        # Check the file type after download
-        file gitleaks
-        # Check file permissions
-        ls -l gitleaks
         chmod +x gitleaks
-        # Test if the binary works by checking its version
-        ./gitleaks --version
         sudo mv gitleaks /usr/local/bin/
 
     - name: Run GitLeaks Scan
       run: |
-        gitleaks detect --source . --no-git -v
+        gitleaks detect --path . --no-git -v
 
     - name: Run Compliance Checks
       run: |
