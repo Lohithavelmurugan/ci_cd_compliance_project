@@ -40,13 +40,14 @@ jobs:
 
     - name: Install GitLeaks
       run: |
-        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
-        # Verify the downloaded file type
+        # Correct link for the Gitleaks binary (use the appropriate version and architecture)
+        curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v7.6.0/gitleaks-linux-amd64 -o gitleaks
+        # Check the file type after download
         file gitleaks
-        # Check if the file is executable and inspect file permissions
+        # Check file permissions
         ls -l gitleaks
         chmod +x gitleaks
-        # Ensure the file is executable and correct
+        # Test if the binary works by checking its version
         ./gitleaks --version
         sudo mv gitleaks /usr/local/bin/
 
