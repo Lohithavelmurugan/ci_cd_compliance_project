@@ -41,8 +41,12 @@ jobs:
     - name: Install GitLeaks
       run: |
         curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+        # Check the file type and contents
+        file gitleaks  # This checks the file type
+        ls -l gitleaks  # This shows the file details (permissions, size, etc.)
         chmod +x gitleaks
         sudo mv gitleaks /usr/local/bin/
+        gitleaks --version  # Verify the installation
 
     - name: Run GitLeaks Scan
       run: |
