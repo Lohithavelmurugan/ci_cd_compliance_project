@@ -2,8 +2,8 @@
 
 echo "Running Institutional Compliance Check..."
 
-# 1. Check for hardcoded secrets (excluding .env, .git, .cache)
-if grep -r --exclude-dir={.git,.cache} --exclude=.env -i 'password\|apikey\|token' .; then
+# 1. Check for hardcoded secrets (excluding .env, .git, .cache, this script itself)
+if grep -r --binary-files=without-match --exclude-dir={.git,.cache} --exclude={.env,compliance_rules.sh} -i 'password\|apikey\|token' .; then
   echo "❌ Hardcoded secret found."
   exit 1
 fi
