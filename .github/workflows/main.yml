@@ -2,9 +2,9 @@ name: CI/CD Compliance Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build-and-check:
@@ -40,14 +40,13 @@ jobs:
 
     - name: Install GitLeaks
       run: |
-        # Correct link for the Gitleaks binary (use the appropriate version and architecture)
         curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v7.6.0/gitleaks-linux-amd64 -o gitleaks
         chmod +x gitleaks
         sudo mv gitleaks /usr/local/bin/
 
     - name: Run GitLeaks Scan
       run: |
-        gitleaks detect --path . --no-git -v
+        gitleaks detect --source . -v
 
     - name: Run Compliance Checks
       run: |
