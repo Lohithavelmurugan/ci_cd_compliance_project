@@ -46,7 +46,7 @@ jobs:
 
     - name: Run GitLeaks Scan
       run: |
-        gitleaks detect --path . --no-git -v
+        gitleaks --path=. --no-git -v
 
     - name: Run Compliance Checks
       run: |
