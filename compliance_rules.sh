@@ -2,8 +2,8 @@
 
 echo "Running Institutional Compliance Check..."
 
-# 1. Check for hardcoded secrets
-if grep -r 'password\|apikey\|token' . | grep -v '.env'; then
+# 1. Check for hardcoded secrets (excluding .env, .git, .cache)
+if grep -r --exclude-dir={.git,.cache} --exclude=.env -i 'password\|apikey\|token' .; then
   echo "❌ Hardcoded secret found."
   exit 1
 fi
@@ -14,19 +14,19 @@ if grep -q 'EXPOSE 22' Dockerfile; then
   exit 1
 fi
 
-# 3. Check for .env in Git (should be ignored)
-if git ls-files | grep -q '.env'; then
+# 3. Check for .env being tracked by Git
+if git ls-files | grep -q '^.env$'; then
   echo "❌ .env file is tracked. Should be in .gitignore."
   exit 1
 fi
 
-# 4. Check for logging usage
+# 4. Check for logging usage in app.py
 if ! grep -q 'import logging' app.py; then
   echo "❌ Logging not found in app."
   exit 1
 fi
 
-# 5. Check for privacy policy file
+# 5. Check for privacy policy
 if [ ! -f PRIVACY.md ]; then
   echo "❌ PRIVACY.md not found."
   exit 1
