@@ -36,7 +36,7 @@ jobs:
         docker build -t my-compliance-app .
 
     - name: Run Trivy Scan
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.20.0
       with:
         image-ref: my-compliance-app
 
